@@ -53,7 +53,7 @@ class RushHour3D(SearchProblem):
                     pisoOtraPieza = otra_pieza[1]
                     # en el for partesDeLaOtraPieza obtiene cada parte de la otraPieza y se usa al inicio para ver si se encuentra en la 
                     # misma posicion alguna parte de nuestra pieza
-                    if not (any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza == piso - 1):
+                    if not any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza != piso - 1:
                         available_actions.append((id, "caer"))
 
             # TREPAR
@@ -63,7 +63,7 @@ class RushHour3D(SearchProblem):
                     pisoOtraPieza = otra_pieza[1]
                     # en el for partesDeLaOtraPieza obtiene cada parte de la otraPieza y se usa al inicio para ver si se encuentra en la 
                     # misma posicion alguna parte de nuestra pieza
-                    if not (any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza == piso + 1):
+                    if not any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza != piso + 1:
                         available_actions.append((id, "trepar"))
 
 
@@ -131,15 +131,14 @@ class RushHour3D(SearchProblem):
                 break
         
         state.remove(nuestraPieza)
-
-        nuestraPieza = list(nuestraPieza)
+        nuestraPieza=list(nuestraPieza)
 
         if accion == "trepar":
-            nuestraPieza[1]+=1
+            nuestraPieza[1]= nuestraPieza[1]+1
             
         else:
             if accion == "caer":
-                nuestraPieza[1]-=1
+                nuestraPieza[1]=nuestraPieza[1]-1
 
             else:
                 nFil, nCol = MOVIMIENTOS[accion]
@@ -214,25 +213,26 @@ def jugar(filas, columnas, pisos, salida, piezas, pieza_sacar):
     return listaActions
     
 
-# if __name__ == '__main__':
-#     my_problem = RushHour3D(filas=5, columnas=5,
-#     pisos=3,
-#     salida=(3, 1, 1),  
-#     piezas=[
-#         {"id": "pieza_roja", "piso": 0, "partes": [(1, 0), (2, 0)]},
-#     ],
-#     pieza_sacar="pieza_roja",)
+if __name__ == '__main__':
+    my_problem = RushHour3D(filas=5, columnas=5,
+    pisos=3,
+    salida=(1, 4, 3),  
+    piezas=[
+        {"id": "pieza_roja", "piso": 0, "partes": [(1, 0), (2, 0)]},
+        {"id": "pieza_verde", "piso": 1, "partes": [(4, 2), (4, 3)]},
+    ],
+    pieza_sacar="pieza_roja",)
 
-#     result = astar(my_problem)
+    result = astar(my_problem)
 
-#     if result is None:
-#         print("No solution")
-#     else:
-#         for action, resulta in result.path():
-#             print("A:", action)
-#             # print("R:", resulta)
+    if result is None:
+        print("No solution")
+    else:
+        for action, resulta in result.path():
+            print("A:", action)
+            # print("R:", resulta)
 
-#         print("Final depth:", len(result.path()))
-#         print("Final cost:", result.cost)
+        print("Final depth:", len(result.path()))
+        print("Final cost:", result.cost)
 
 
