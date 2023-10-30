@@ -23,93 +23,64 @@ class RushHour3D(SearchProblem):
 
         super().__init__(self.state)
 
-    # Pasamos la posicion modificado
+    # Pasamos la posicion modificada
     def puedoMovermeEn2D(self, id, partes, piso, state):
 
-        for parte in partes:
-            for pieza in state:
-                idOtraPieza = pieza[0]
-                pisoOtraPieza = pieza[1]
-                partesOtraPieza = pieza[2]
-
-                if id != idOtraPieza and  piso == pisoOtraPieza and parte in partesOtraPieza:
-                    return False
-
+        for pieza in state:
+            if pieza[1] == piso and id != pieza[0]:
+                for parte_de_otra_pieza in pieza[2]:
+                        if parte_de_otra_pieza in partes:
+                            return False
         return True
 
 
     def actions(self, state):
         available_actions = []
+
         for pieza in state:
             id = pieza[0]
             piso = pieza[1]
             partes = pieza[2]
 
             # CAER
-            if(piso > 0):
-                for otra_pieza in state:
+            if piso > 0:
+                if self.puedoMovermeEn2D(id, partes, piso-1, state):  
+                    available_actions.append((id, "caer"))
 
-                    otraPieza= otra_pieza[2]
-                    pisoOtraPieza = otra_pieza[1]
-                    # en el for partesDeLaOtraPieza obtiene cada parte de la otraPieza y se usa al inicio para ver si se encuentra en la 
-                    # misma posicion alguna parte de nuestra pieza
-                    if not any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza != piso - 1:
-                        available_actions.append((id, "caer"))
-
-            # TREPAR
-            if(piso < self.pisos-1): 
-                for otra_pieza in state:
-                    otraPieza= otra_pieza[2]
-                    pisoOtraPieza = otra_pieza[1]
-                    # en el for partesDeLaOtraPieza obtiene cada parte de la otraPieza y se usa al inicio para ver si se encuentra en la 
-                    # misma posicion alguna parte de nuestra pieza
-                    if not any(partesDeLaOtraPieza in partes for partesDeLaOtraPieza in otraPieza) and pisoOtraPieza != piso + 1:
-                        available_actions.append((id, "trepar"))
+            # TREPAR         
+            if piso < self.pisos-1:
+                if self.puedoMovermeEn2D(id, partes, piso+1, state):  
+                    available_actions.append((id, "trepar"))
 
 
             # ARRIBA
-            if all(unaParte[0] > 0 for unaParte in partes):
-                nuevasPartes = []
-
-                for parte in partes:
-                    fil, col = parte
-                    nuevasPartes.append((fil-1,col))
+            if all(parte[0] > 0 for parte in partes):
+                nuevasPartes = [(fil-1, col) for fil, col in partes]
 
                 if self.puedoMovermeEn2D(id, nuevasPartes, piso, state):  
                     available_actions.append((id, "arriba"))
 
             # ABAJO
             if all(parte[0] < self.filas-1 for parte in partes):
-                nuevasPartes = []
-
-                for parte in partes:
-                    fil, col = parte
-                    nuevasPartes.append((fil+1,col))
+                nuevasPartes = [(fil+1, col) for fil, col in partes]
                     
                 if self.puedoMovermeEn2D(id, nuevasPartes, piso, state):                
                     available_actions.append((id, "abajo"))
 
             # IZQUIERDA
             if all(parte[1] > 0 for parte in partes):
-                nuevasPartes = []
-
-                for parte in partes:
-                    fil, col = parte
-                    nuevasPartes.append((fil,col-1))
+                nuevasPartes = [(fil, col - 1) for fil, col in partes]
                     
                 if self.puedoMovermeEn2D(id, nuevasPartes, piso, state):               
                     available_actions.append((id, "izquierda"))
 
             # DERECHA
             if all(parte[1] < self.columnas - 1 for parte in partes):
-                nuevasPartes = []
-
-                for parte in partes:
-                    fil, col = parte
-                    nuevasPartes.append((fil,col+1))
+                nuevasPartes = [(fil, col + 1) for fil, col in partes]
                     
                 if self.puedoMovermeEn2D(id, nuevasPartes, piso, state):               
                     available_actions.append((id, "derecha"))
+
         return available_actions
     
     def result(self, state, action):
@@ -209,30 +180,42 @@ def jugar(filas, columnas, pisos, salida, piezas, pieza_sacar):
     result = astar(my_problem)
     listaActions= []
     for accion, result in result.path():
-        listaActions.append(accion)
+        if accion is not None:
+            listaActions.append(accion)
     return listaActions
     
 
-if __name__ == '__main__':
-    my_problem = RushHour3D(filas=5, columnas=5,
-    pisos=3,
-    salida=(1, 4, 3),  
-    piezas=[
-        {"id": "pieza_roja", "piso": 0, "partes": [(1, 0), (2, 0)]},
-        {"id": "pieza_verde", "piso": 1, "partes": [(4, 2), (4, 3)]},
-    ],
-    pieza_sacar="pieza_roja",)
+# if __name__ == '__main__':
+#     my_problem = RushHour3D(filas=2, columnas=3,
+#     pisos=2,
+#     salida=(0, 0, 0),  
+#     piezas=[
+#         # {"id": "E", "piso": 2, "partes": [(0, 3), (1, 2), (1, 3), (2, 2)]},
+#         # {"id": "A", "piso": 2, "partes": [(1, 0), (2, 0), (2, 1)]},
+#         # {"id": "C", "piso": 1, "partes": [(0, 1), (1, 1), (2, 1)]},
+#         # {"id": "D", "piso": 1, "partes": [(2, 2), (2, 3)]},
+#         # {"id": "B", "piso": 0, "partes": [(1, 0), (0, 0), (0, 1), (1, 1)]},
+#         # {"id": "F", "piso": 0, "partes": [(0, 2), (0, 3)]},
 
-    result = astar(my_problem)
+#         # Ejemplo 7,6,10
+#         {"id": "A", "piso": 1, "partes": [(1, 1), (1, 2)]},
+#         {"id": "C", "piso": 0, "partes": [(0, 1)]},
+#         {"id": "D", "piso": 0, "partes": [(0, 0), (0, 1)]},
+#         {"id": "B", "piso": 1, "partes": [(0, 0), (0, 1)]},
 
-    if result is None:
-        print("No solution")
-    else:
-        for action, resulta in result.path():
-            print("A:", action)
-            # print("R:", resulta)
+#     ],
+#     pieza_sacar="A",)
 
-        print("Final depth:", len(result.path()))
-        print("Final cost:", result.cost)
+#     result = astar(my_problem)
+
+#     if result is None:
+#         print("No solution")
+#     else:
+#         for action, resultado in result.path():
+#             print("A:", action)
+#             # print("R:", resulta)
+
+#         print("Final depth:", len(result.path()))
+#         print("Final cost:", result.cost)
 
 
