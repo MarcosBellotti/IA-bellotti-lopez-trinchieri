@@ -1,15 +1,7 @@
 from simpleai.search import (
     SearchProblem,
-    breadth_first,
-    uniform_cost,
-    depth_first,
-    limited_depth_first,
-    iterative_limited_depth_first,
-    greedy,
     astar,
 )
-from simpleai.search.viewers import BaseViewer, WebViewer
-
 
 class RushHour3D(SearchProblem):  
     
@@ -151,8 +143,6 @@ class RushHour3D(SearchProblem):
 
     def heuristic(self, state):
         distancias=[]
-        # total calcula la distancia de la parte mas cercana a la posicion final
-        # obtengo la pieza que tiene mi id
         for pieza in state:
             if pieza[0] == self.pieza_sacar:
                 piezaASacar = pieza
@@ -162,16 +152,10 @@ class RushHour3D(SearchProblem):
             distancia = self.distance(parte[0], parte[1])
             distancias.append(distancia)
 
-        # Calcula la distancia mínima entre todas las distancias recopiladas.
         distancia_minima = min(distancias)
-
-        # Calcula la diferencia entre el piso actual y el piso deseado.
         diferencia_piso = abs(self.salida[0] - piezaASacar[1])
 
-        # Suma la distancia mínima y la diferencia de piso a la heurística total.
-        heuristica_total = distancia_minima + diferencia_piso
-
-        return heuristica_total
+        return distancia_minima + diferencia_piso
 
 
 def jugar(filas, columnas, pisos, salida, piezas, pieza_sacar):
@@ -183,39 +167,3 @@ def jugar(filas, columnas, pisos, salida, piezas, pieza_sacar):
         if accion is not None:
             listaActions.append(accion)
     return listaActions
-    
-
-# if __name__ == '__main__':
-#     my_problem = RushHour3D(filas=2, columnas=3,
-#     pisos=2,
-#     salida=(0, 0, 0),  
-#     piezas=[
-#         # {"id": "E", "piso": 2, "partes": [(0, 3), (1, 2), (1, 3), (2, 2)]},
-#         # {"id": "A", "piso": 2, "partes": [(1, 0), (2, 0), (2, 1)]},
-#         # {"id": "C", "piso": 1, "partes": [(0, 1), (1, 1), (2, 1)]},
-#         # {"id": "D", "piso": 1, "partes": [(2, 2), (2, 3)]},
-#         # {"id": "B", "piso": 0, "partes": [(1, 0), (0, 0), (0, 1), (1, 1)]},
-#         # {"id": "F", "piso": 0, "partes": [(0, 2), (0, 3)]},
-
-#         # Ejemplo 7,6,10
-#         {"id": "A", "piso": 1, "partes": [(1, 1), (1, 2)]},
-#         {"id": "C", "piso": 0, "partes": [(0, 1)]},
-#         {"id": "D", "piso": 0, "partes": [(0, 0), (0, 1)]},
-#         {"id": "B", "piso": 1, "partes": [(0, 0), (0, 1)]},
-
-#     ],
-#     pieza_sacar="A",)
-
-#     result = astar(my_problem)
-
-#     if result is None:
-#         print("No solution")
-#     else:
-#         for action, resultado in result.path():
-#             print("A:", action)
-#             # print("R:", resulta)
-
-#         print("Final depth:", len(result.path()))
-#         print("Final cost:", result.cost)
-
-
